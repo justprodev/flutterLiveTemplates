@@ -1,5 +1,6 @@
 ------------------------------- Edit variables ----------------------------------------------------------
 |NAME                    |                          |capitalize(camelCase(fileNameWithoutExtension()))| |
+|name                    |                          |decapitalize(camelCase(fileNameWithoutExtension()))| |
 ------------------------------- Edit variables ----------------------------------------------------------
 
 ------------------------------- Template text ----------------------------------------------
