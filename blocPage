@@ -1,0 +1,62 @@
+------------------------------- Edit variables ----------------------------------------------------------
+|NAME                    |                          |capitalize(camelCase(fileNameWithoutExtension()))| |
+------------------------------- Edit variables ----------------------------------------------------------
+
+------------------------------- Template text ----------------------------------------------
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/$name$.dart';
+import '../../app/widgets/wait.dart';
+
+import '../di.dart';
+import '../strings.dart';
+
+class $NAME$Page extends StatelessWidget {
+  const $NAME$Page({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<$NAME$Bloc>(
+      create: (_) => get$NAME$Bloc(),
+      child: $NAME$PageView()
+    );
+  }
+}
+
+class $NAME$PageView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(padding: EdgeInsets.all(16), child: Column(children: [
+        // Header, etc
+        BlocConsumer<$NAME$Bloc, $NAME$State> (
+            listener: (context, state) {
+              if(state is Navigate$NAME$State) {
+                // navigation
+                switch(state.dest) {
+                  case Dest.Page1:
+                    //  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>LoginPage()));
+                    break;
+                  case Dest.Page2:
+                    //  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>LoginPage()));
+                    break;                  
+                }
+                // drop to initial state
+                context.read<$NAME$Bloc>().add($NAME$Event.initial());
+              }
+            },
+            builder: (context, state) {
+              return state.when<Widget>(
+                navigate: (_)=>showWait(),
+                initial: ()=>Column(children: [
+                  
+                ],)
+              );
+            }
+        )
+      ],)
+    ));
+  }
+}
+------------------------------- Template text ----------------------------------------------
