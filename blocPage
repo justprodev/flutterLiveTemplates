@@ -19,7 +19,7 @@ class $NAME$Page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<$NAME$Bloc>(
-      create: (_) => get$NAME$Bloc(),
+      create: (_) => di.get$NAME$Bloc(),
       child: $NAME$PageView()
     );
   }
