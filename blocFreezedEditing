@@ -1,0 +1,96 @@
+------------------------------- Edit variables ----------------------------------------------------------
+|NAME                    |                          |capitalize(camelCase(fileNameWithoutExtension()))| |
+|fileNameWithoutExtension|fileNameWithoutExtension()|""                                               |X|
+------------------------------- Edit variables ----------------------------------------------------------
+
+------------------------------- Template text ----------------------------------------------
+import 'dart:async';
+
+import 'package:bloc/bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:silkpay/app/utils/errors.dart';
+
+import '../repositories/$fileNameWithoutExtension$.dart';
+
+part '$fileNameWithoutExtension$.freezed.dart';
+
+@freezed
+class $NAME$Event with _$$$NAME$Event {
+  const $NAME$Event._();
+
+  const factory $NAME$Event.load() = Load$NAME$Event;
+  const factory $NAME$Event.edit($NAME$Data data) = Edit$NAME$Event;
+  const factory $NAME$Event.save($NAME$Data data) = Save$NAME$Event;
+}
+
+@freezed
+class $NAME$State with _$$$NAME$State {
+  const $NAME$State._();
+
+  const factory $NAME$State.initial([@Default(null) String? error]) = Initial$NAME$State;
+  const factory $NAME$State.editing($NAME$Data data, [@Default(null) String? error]) = Editing$NAME$State;
+  const factory $NAME$State.saving() = Saving$NAME$State;
+  const factory $NAME$State.saved($NAME$Data data) = Saved$NAME$State;
+}
+
+@freezed
+class $NAME$Data with _$$$NAME$Data {
+  const $NAME$Data._();
+
+  factory $NAME$Data.init({
+    required String some
+  }) = Init$NAME$Data;
+}
+
+class $NAME$Bloc extends Bloc<$NAME$Event, $NAME$State> {
+  final $NAME$Repository _repository;
+  $NAME$Bloc(this._repository) : super(const Initial$NAME$State()){
+    add($NAME$Event.load());
+  }
+
+  @override
+  Stream<$NAME$State> mapEventToState($NAME$Event event) =>
+    event.when<Stream<$NAME$State>>(
+      load: _load,
+      save: _save,
+      edit: _edit
+    );
+
+  Stream<$NAME$State> _load() async* {
+    try {
+      //await for(final object in _repository.getSome()) {
+      //  yield $NAME$State.editing($NAME$Data.init(
+      //    some: object.some  ?? '',
+      //  ));
+      //}
+    } catch(e) {
+      yield $NAME$State.initial(complainError(e));
+    }
+  }
+
+  Stream<$NAME$State> _edit(
+      $NAME$Data data
+      ) async* {
+    yield $NAME$State.editing(data);
+  }
+
+  Stream<$NAME$State> _save($NAME$Data data) async* {
+    try {
+      yield $NAME$State.saving();
+      //await _repository.saveSome(data);
+      yield $NAME$State.saved(data);
+    } catch(e) {
+      yield $NAME$State.editing(data, complainError(e));
+    }
+  }
+
+  @override
+  Stream<Transition<$NAME$Event, $NAME$State>> transformEvents(Stream<$NAME$Event> events, TransitionFunction<$NAME$Event, $NAME$State> transitionFn) {
+    // process latest (if stream have any unprocessed events then they will be dropped)
+    return events.switchMap(transitionFn);
+    // process all events sequentially
+    //return events.asyncExpand(transitionFn);
+  }
+}
+------------------------------- Template text ----------------------------------------------
