@@ -1,0 +1,76 @@
+------------------------------- Edit variables ----------------------------------------------------------
+|NAME                    |                          |capitalize(camelCase(fileNameWithoutExtension()))| |
+|name                    |                          |decapitalize(camelCase(fileNameWithoutExtension()))| |
+------------------------------- Edit variables ----------------------------------------------------------
+
+------------------------------- Template text ----------------------------------------------
+import 'package:flutter/material.dart';
+import 'package:silkpay/app/widgets/appbar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:silkpay/app/utils/cast.dart';
+import '../bloc/$fileNameWithoutExtension$.dart';
+import '../../app/widgets/wait.dart';
+import 'package:silkpay/app/widgets/buttons.dart';
+import 'package:silkpay/app/widgets/errors.dart';
+import '../../app/widgets/wait.dart';
+import 'package:silkpay/app/utils/when.dart';
+
+import '../di.dart';
+import '../strings.dart';
+
+class $NAME$PageArguments {
+  $NAME$PageArguments();
+}
+
+class $NAME$Page extends StatelessWidget {
+  const $NAME$Page({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments.cast<$NAME$PageArguments>();
+    return BlocProvider<$NAME$Bloc>(
+      create: (_) => di.get$NAME$Bloc(/*args.some*/),
+      child: $NAME$PageView()
+    );
+  }
+}
+
+class $NAME$PageView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: showAppBar(context,''),
+      body: BlocConsumer<$NAME$Bloc, $NAME$State>(
+        listener: (context, state) async {
+            if(state is Saved$NAME$State) {
+              Navigator.of(context).pop(true);
+            } else if(state is Initial$NAME$State) {
+              if(state.error!=null) displayError(context, state.error!);
+            } else if(state is Editing$NAME$State) {
+              if(state.error!=null) displayError(context, state.error!, duration: 1000);
+            }
+          },
+        builder: (context, state) {
+          return state.maybeWhen(
+            orElse: ()=>showWait(),
+            initial: (error) {
+              if(error!=null) return showError(context, error, ()=>context.read<$NAME$Bloc>().add($NAME$Event.load()));
+              return showWait();
+            },
+            editing: (data, error) {
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start,children: [
+                      // TODO: create widgets for state.data
+                    ],)
+                )
+              );
+            }
+          );
+        },
+      ),
+    );
+  }
+}
+------------------------------- Template text ----------------------------------------------
