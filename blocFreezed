@@ -4,28 +4,42 @@
 ------------------------------- Edit variables ----------------------------------------------------------
 
 ------------------------------- Template text ----------------------------------------------
+import 'dart:async';
+import 'package:rxdart/rxdart.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../repositories/$fileNameWithoutExtension$.dart';
 
 part '$fileNameWithoutExtension$.freezed.dart';
 
-enum Dest { Page1, Page2 }
+enum Dest { Some }
 
 @freezed
 class $NAME$Event with _$$$NAME$Event {
   const $NAME$Event._();
 
   const factory $NAME$Event.initial() = Initial$NAME$Event;
-  const factory $NAME$Event.navigate(Dest dest) = Navigate$NAME$Event;
+  const factory $NAME$Event.edit($NAME$Data data) = Edit$NAME$Event;
+  const factory $NAME$Event.navigate(Dest dest, [@Default(null) $NAME$Data? data]) = Navigate$NAME$Event;
 }
 
 @freezed
 class $NAME$State with _$$$NAME$State {
   const $NAME$State._();
   
-  const factory $NAME$State.initial() = Initial$NAME$State;
-  const factory $NAME$State.navigate(Dest dest) = Navigate$NAME$State;
+  const factory $NAME$State.initial([@Default(null) String? error]) = Initial$NAME$State;
+  const factory $NAME$State.editing($NAME$Data data, [@Default(null) String? error]) = Editing$NAME$State;
+  const factory $NAME$State.navigate(Dest dest, [@Default(null) $NAME$Data? data]) = Navigate$NAME$State;
+}
+
+@freezed
+class $NAME$Data with _$$$NAME$Data {
+  const $NAME$Data._();
+
+  factory $NAME$Data.init({
+    @Default(null) String? someField,
+  }) = Init$NAME$Data;
 }
 
 class $NAME$Bloc extends Bloc<$NAME$Event, $NAME$State> {
@@ -36,15 +50,42 @@ class $NAME$Bloc extends Bloc<$NAME$Event, $NAME$State> {
   Stream<$NAME$State> mapEventToState($NAME$Event event) =>
     event.when<Stream<$NAME$State>>(
       initial: _initial,
-      navigate: _navigate
+      navigate: _navigate,
+      edit: _edit
     );
   
   Stream<$NAME$State> _initial() async* {
-    yield $NAME$State.initial();    
+    yield $NAME$State.editing($NAME$Data.init());    
   }
   
-  Stream<$NAME$State> _navigate(Dest dest) async* {
-    yield $NAME$State.navigate(dest);
+  Stream<$NAME$State> _initial() {
+    /// loading initial data and got to next state
+    final controller = StreamController<$NAME$State>();
+    _repository.getSomeField().listen((event) {
+      controller.add($NAME$State.editing($NAME$Data.init(someField: event)));
+    }, onError: (e) {
+      controller.add($NAME$State.initial(complainError(e)));
+    }, onDone: ()=>controller.close());
+
+    return controller.stream;
+  }
+  
+  Stream<$NAME$State> _edit(
+      $NAME$Data data
+  ) async* {
+    yield $NAME$State.editing(data);
+  }
+  
+  Stream<$NAME$State> _navigate(Dest dest, $NAME$Data? data) async* {
+    yield $NAME$State.navigate(dest, data);
+  }
+  
+  @override
+  Stream<Transition<$NAME$Event, $NAME$State>> transformEvents(Stream<$NAME$Event> events, TransitionFunction<$NAME$Event, $NAME$State> transitionFn) {
+    // process latest (if stream have any unprocessed events then they will be dropped)
+    return events.switchMap(transitionFn);
+    // process all events sequentially
+    //return events.asyncExpand(transitionFn);
   }
 }
 ------------------------------- Template text ----------------------------------------------
