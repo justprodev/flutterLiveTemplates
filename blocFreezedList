@@ -1,0 +1,111 @@
+------------------------------- Edit variables ----------------------------------------------------------
+|NAME                    |                          |capitalize(camelCase(fileNameWithoutExtension()))| |
+|fileNameWithoutExtension|fileNameWithoutExtension()|""                                               |X|
+------------------------------- Edit variables ----------------------------------------------------------
+
+------------------------------- Template text ----------------------------------------------
+import 'dart:async';
+
+import 'package:bloc/bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:silkpay/app/utils/errors.dart';
+
+import '../repositories/$fileNameWithoutExtension$.dart';
+
+part '$fileNameWithoutExtension$.freezed.dart';
+
+typedef $NAME$Item = String; //MyItemType
+typedef $NAME$List = List<$NAME$Item>;
+
+@freezed
+class $NAME$Event with _$$$NAME$Event {
+  const $NAME$Event._();
+
+  const factory $NAME$Event.load() = Load$NAME$Event;
+  const factory $NAME$Event.add($NAME$Item item) = Add$NAME$Event;
+  const factory $NAME$Event.remove($NAME$Item item) = Remove$NAME$Event;
+}
+
+@freezed
+class $NAME$State with _$$$NAME$State {
+  const $NAME$State._();
+
+  const factory $NAME$State.initial($NAME$Data data, [@Default(null) String? error]) = Initial$NAME$State;
+  const factory $NAME$State.loading($NAME$Data data) = Loading$NAME$State;
+  const factory $NAME$State.loaded($NAME$Data data) = Loaded$NAME$State;
+}
+
+@freezed
+class $NAME$Data with _$$$NAME$Data {
+  const $NAME$Data._();
+
+  factory $NAME$Data.init({
+    @Default([]) $NAME$List items
+  }) = Init$NAME$Data;
+}
+
+class $NAME$Bloc extends Bloc<$NAME$Event, $NAME$State> {
+  final $NAME$Repository _repository;
+  $NAME$Bloc(this._repository) : super($NAME$State.initial($NAME$Data.init())){
+    add($NAME$Event.load());
+  }
+
+  @override
+  Stream<$NAME$State> mapEventToState($NAME$Event event) =>
+    event.when<Stream<$NAME$State>>(
+      load: _load,
+      add: _add,
+      remove: _remove
+    );
+
+  Stream<$NAME$State> _load() async* {
+    yield $NAME$State.loading(state.data);   
+    try {
+      // stream of $NAME$List
+      await for(final items in _repository.load()) {
+        yield $NAME$State.loaded($NAME$Data.init(
+          items: items
+        ));
+      }
+    } catch(e) {
+      yield $NAME$State.initial(state.data, complainError(e));
+    }
+  }
+
+  Stream<$NAME$State> _add($NAME$Item item) async* {
+    yield $NAME$State.loading(state.data);   
+    try {
+      _repository.add(item);
+      // perspective update
+      yield $NAME$State.loaded($NAME$Data.init(
+        items: state.data.items..add(item)
+      ));
+    } catch(e) {
+      yield $NAME$State.initial(state.data, complainError(e));
+    }
+  }
+  
+  Stream<$NAME$State> _remove($NAME$Item item) async* {
+    yield $NAME$State.loading(state.data);   
+    try {
+      _repository.remove(item);
+      // perspective update
+      yield $NAME$State.loaded($NAME$Data.init(
+        items: state.data.items..remove(item)
+      ));
+    } catch(e) {
+      yield $NAME$State.initial(state.data, complainError(e));
+    }
+  }
+
+  @override
+  Stream<Transition<$NAME$Event, $NAME$State>> transformEvents(Stream<$NAME$Event> events, TransitionFunction<$NAME$Event, $NAME$State> transitionFn) {
+    // process latest (if stream have any unprocessed events then they will be dropped)
+    return events.switchMap(transitionFn);
+    // process all events sequentially
+    //return events.asyncExpand(transitionFn);
+  }
+}
+
+------------------------------- Template text ----------------------------------------------
